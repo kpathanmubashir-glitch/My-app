@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gather & Go</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif}
+body{background:#0f172a;color:#fff;overflow-x:hidden}
+
+header{
+padding:18px;
+text-align:center;
+font-size:22px;
+font-weight:700;
+background:linear-gradient(45deg,#ff6b00,#00c2a8);
+letter-spacing:1px;
+}
+
+section{display:none;padding:20px;padding-bottom:100px;animation:fade .4s}
+.active{display:block}
+
+@keyframes fade{
+from{opacity:0;transform:translateY(10px)}
+to{opacity:1;transform:translateY(0)}
+}
+
+.card{
+background:#1e293b;
+padding:15px;
+border-radius:15px;
+margin-bottom:15px;
+box-shadow:0 8px 20px rgba(0,0,0,.4);
+}
+
+input,select{
+width:100%;
+padding:12px;
+margin:8px 0;
+border-radius:10px;
+border:none;
+outline:none;
+background:#334155;
+color:#fff;
+}
+
+button{
+padding:10px 16px;
+border:2px solid #ff6b00;
+background:transparent;
+color:#ff6b00;
+border-radius:30px;
+cursor:pointer;
+transition:.3s;
+margin-top:10px;
+font-weight:600;
+}
+
+button:hover{
+background:#ff6b00;
+color:#fff;
+transform:scale(1.05);
+box-shadow:0 0 15px #ff6b00;
+}
+
+.delete-btn{
+border:2px solid #ff3b3b;
+color:#ff3b3b;
+margin-left:10px;
+}
+.delete-btn:hover{
+background:#ff3b3b;
+color:#fff;
+box-shadow:0 0 10px #ff3b3b;
+}
+
+nav{
+position:fixed;
+bottom:0;
+width:100%;
+display:flex;
+justify-content:space-around;
+background:#1e293b;
+padding:12px 0;
+box-shadow:0 -5px 15px rgba(0,0,0,.4);
+}
+
+nav button{
+border:2px solid #00c2a8;
+color:#00c2a8;
+background:transparent;
+border-radius:20px;
+padding:8px 12px;
+font-size:14px;
+}
+nav button:hover{
+background:#00c2a8;
+color:#000;
+box-shadow:0 0 10px #00c2a8;
+}
+
+.hero{
+height:150px;
+border-radius:15px;
+background:linear-gradient(45deg,#ff6b00,#00c2a8);
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:20px;
+font-weight:600;
+margin-bottom:15px;
+}
+
+.small{font-size:14px;color:#cbd5e1}
+h3{margin-bottom:10px}
+</style>
+</head>
+<body>
+
+<header>Gather & Go</header>
+
+<section id="home" class="active">
+<div class="hero">Plan Events & Travel Smart</div>
+<div class="card">
+<h3>Welcome 👋</h3>
+<p class="small">Create events & discover amazing destinations easily.</p>
+</div>
+</section>
+
+<section id="create">
+<div class="card">
+<h3>Create Event</h3>
+<input type="text" id="eventName" placeholder="Event Name">
+<input type="date" id="eventDate">
+<input type="text" id="eventLocation" placeholder="Location">
+<input type="number" id="eventBudget" placeholder="Budget ₹">
+<button onclick="saveEvent()">Save Event</button>
+</div>
+<div id="eventList"></div>
+</section>
+
+<section id="travel">
+<div class="card">
+<h3>Discover Destinations</h3>
+<select id="category">
+<option>Beaches</option>
+<option>Mountains</option>
+<option>Cities</option>
+</select>
+<button onclick="showDestination()">Discover</button>
+<div id="destinationResult"></div>
+</div>
+</section>
+
+<section id="profile">
+<div class="card">
+<h3>User Profile</h3>
+<p>Name: Aryan</p>
+<p>Email: user@email.com</p>
+<button onclick="logout()">Logout</button>
+</div>
+</section>
+
+<nav>
+<button onclick="showScreen('home')">Home</button>
+<button onclick="showScreen('create')">Events</button>
+<button onclick="showScreen('travel')">Travel</button>
+<button onclick="showScreen('profile')">Profile</button>
+</nav>
+
+<script>
+function showScreen(id){
+document.querySelectorAll("section").forEach(sec=>sec.classList.remove("active"));
+document.getElementById(id).classList.add("active");
+}
+
+function saveEvent(){
+let name=document.getElementById("eventName").value;
+let date=document.getElementById("eventDate").value;
+let location=document.getElementById("eventLocation").value;
+let budget=document.getElementById("eventBudget").value;
+
+if(name===""){alert("Enter Event Name");return;}
+
+let events=JSON.parse(localStorage.getItem("events"))||[];
+events.push({name,date,location,budget});
+localStorage.setItem("events",JSON.stringify(events));
+
+loadEvents();
+
+document.getElementById("eventName").value="";
+document.getElementById("eventDate").value="";
+document.getElementById("eventLocation").value="";
+document.getElementById("eventBudget").value="";
+}
+
+function loadEvents(){
+let eventList=document.getElementById("eventList");
+eventList.innerHTML="";
+let events=JSON.parse(localStorage.getItem("events"))||[];
+
+events.forEach((e,index)=>{
+let div=document.createElement("div");
+div.className="card";
+div.innerHTML=`
+<h4>${e.name}</h4>
+<p class="small">${e.date} • ${e.location} • ₹${e.budget}</p>
+<button class="delete-btn" onclick="deleteEvent(${index})">Delete</button>
+`;
+eventList.appendChild(div);
+});
+}
+
+function deleteEvent(index){
+let events=JSON.parse(localStorage.getItem("events"))||[];
+events.splice(index,1);
+localStorage.setItem("events",JSON.stringify(events));
+loadEvents();
+}
+
+function showDestination(){
+let cat=document.getElementById("category").value;
+let data={
+Beaches:["Goa","Maldives","Bali"],
+Mountains:["Manali","Shimla","Leh"],
+Cities:["Delhi","Mumbai","Jaipur"]
+};
+
+let container=document.getElementById("destinationResult");
+container.innerHTML="";
+data[cat].forEach(place=>{
+let div=document.createElement("div");
+div.className="card";
+div.innerHTML=`<h4>${place}</h4><p class="small">${cat} Destination</p>`;
+container.appendChild(div);
+});
+}
+
+function logout(){
+alert("Logged Out Successfully");
+showScreen("home");
+}
+
+loadEvents();
+</script>
+
+</body>
+</html> 
